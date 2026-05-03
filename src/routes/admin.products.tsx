@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Pencil, Trash2, CheckCheck } from "lucide-react";
+import { Pencil, Trash2, CheckCheck, RotateCcw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,9 +26,10 @@ function ManageProducts() {
     const { error } = await supabase.from("products").delete().eq("id", id);
     if (error) toast.error(error.message); else { toast.success("Deleted"); load(); }
   };
-  const markSold = async (id: string) => {
-    const { error } = await supabase.from("products").update({ status: "sold" }).eq("id", id);
-    if (error) toast.error(error.message); else { toast.success("Marked as sold"); load(); }
+  const toggleStatus = async (id: string, current: string) => {
+    const next = current === "sold" ? "available" : "sold";
+    const { error } = await supabase.from("products").update({ status: next }).eq("id", id);
+    if (error) toast.error(error.message); else { toast.success(`Marked as ${next}`); load(); }
   };
 
   return (
@@ -54,11 +55,18 @@ function ManageProducts() {
                   <Badge variant={p.status === "sold" ? "destructive" : "default"}>{p.status}</Badge>
                 </td>
                 <td className="p-3 text-right space-x-1 whitespace-nowrap">
-                  {p.status !== "sold" && (
-                    <Button size="sm" variant="ghost" onClick={() => markSold(p.id)} title="Mark as sold">
-                      <CheckCheck className="h-4 w-4" />
-                    </Button>
-                  )}
+                  <Button
+                    size="sm"
+                    variant={p.status === "sold" ? "outline" : "secondary"}
+                    onClick={() => toggleStatus(p.id, p.status)}
+                    title={p.status === "sold" ? "Mark as available" : "Mark as sold"}
+                  >
+                    {p.status === "sold" ? (
+                      <><RotateCcw className="h-4 w-4 mr-1" /> Available</>
+                    ) : (
+                      <><CheckCheck className="h-4 w-4 mr-1" /> Sold</>
+                    )}
+                  </Button>
                   <Button asChild size="sm" variant="ghost"><Link to="/admin/edit/$id" params={{ id: p.id }}><Pencil className="h-4 w-4" /></Link></Button>
                   <Button size="sm" variant="ghost" onClick={() => remove(p.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                 </td>

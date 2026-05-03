@@ -42,6 +42,16 @@ function AdminLayout() {
     else toast.success("Signed in");
   };
 
+  const signUp = async () => {
+    if (!email || !password) { toast.error("Enter email and password first"); return; }
+    const { error } = await supabase.auth.signUp({
+      email, password,
+      options: { emailRedirectTo: window.location.origin + "/admin" },
+    });
+    if (error) toast.error(error.message);
+    else toast.success("Account created — ask the owner to grant admin access.");
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
     router.navigate({ to: "/" });
@@ -59,6 +69,7 @@ function AdminLayout() {
             <div><Label>Email</Label><Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></div>
             <div><Label>Password</Label><Input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} /></div>
             <Button type="submit" className="w-full">Sign In</Button>
+            <Button type="button" variant="outline" className="w-full" onClick={signUp}>Create Account</Button>
           </form>
         </div>
       </SiteLayout>

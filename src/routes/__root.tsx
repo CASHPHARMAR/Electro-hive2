@@ -33,10 +33,14 @@ export const Route = createRootRoute({
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Electronic Hive — Affordable Laptops & Accessories in Ghana" },
       { name: "description", content: "Buy quality laptops and accessories in Accra, Ghana. Tested devices, fair prices, fast delivery. Order via WhatsApp." },
-      { property: "og:title", content: "Electronic Hive — Laptops & Accessories in Ghana" },
-      { property: "og:description", content: "Affordable, tested laptops and accessories. Order via WhatsApp." },
+      { property: "og:title", content: "Electronic Hive — Affordable Laptops & Accessories in Ghana" },
+      { property: "og:description", content: "Buy quality laptops and accessories in Accra, Ghana. Tested devices, fair prices, fast delivery. Order via WhatsApp." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Electronic Hive — Affordable Laptops & Accessories in Ghana" },
+      { name: "twitter:description", content: "Buy quality laptops and accessories in Accra, Ghana. Tested devices, fair prices, fast delivery. Order via WhatsApp." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/6ed35f9d-b27a-405f-90c8-f35186e3d1c6" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/6ed35f9d-b27a-405f-90c8-f35186e3d1c6" },
     ],
     links: [
       {

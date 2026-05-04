@@ -4,6 +4,7 @@ import { ArrowLeft, MessageCircle, Cpu, MemoryStick, HardDrive, Sparkles } from 
 import { SiteLayout } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { formatGHS, whatsappLink } from "@/lib/whatsapp";
 import type { Tables } from "@/integrations/supabase/types";
@@ -23,7 +24,24 @@ function ProductPage() {
       .then(({ data }) => { setProduct(data); setLoading(false); });
   }, [id]);
 
-  if (loading) return <SiteLayout><div className="container mx-auto p-12">Loading…</div></SiteLayout>;
+  useEffect(() => {
+    if (product?.name) document.title = `${product.name} — Electronic Hive`;
+  }, [product?.name]);
+
+  if (loading) return (
+    <SiteLayout>
+      <div className="container mx-auto px-4 py-8 grid md:grid-cols-2 gap-10">
+        <Skeleton className="aspect-[4/3] rounded-2xl" />
+        <div className="space-y-4">
+          <Skeleton className="h-6 w-24" />
+          <Skeleton className="h-10 w-3/4" />
+          <Skeleton className="h-8 w-32" />
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-12 w-full" />
+        </div>
+      </div>
+    </SiteLayout>
+  );
   if (!product) return <SiteLayout><div className="container mx-auto p-12 text-center">
     <h1 className="text-2xl font-bold mb-4">Product not found</h1>
     <Button asChild><Link to="/shop">Back to shop</Link></Button>

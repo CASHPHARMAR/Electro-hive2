@@ -1,14 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
+import { Search } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 
 const searchSchema = z.object({
   category: z.enum(["all", "laptop", "accessory"]).catch("all"),
+  q: z.string().optional().catch(undefined),
 });
 
 export const Route = createFileRoute("/shop")({
@@ -27,6 +31,7 @@ function Shop() {
   const navigate = Route.useNavigate();
   const [products, setProducts] = useState<Tables<"products">[]>([]);
   const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState(search.q ?? "");
 
   useEffect(() => {
     setLoading(true);
@@ -35,12 +40,24 @@ function Shop() {
   }, []);
 
   const filtered = useMemo(() => {
-    if (search.category === "all") return products;
-    return products.filter((p) => p.category === search.category);
-  }, [products, search.category]);
+    let list = products;
+    if (search.category !== "all") list = list.filter((p) => p.category === search.category);
+    const q = (search.q ?? "").trim().toLowerCase();
+    if (q) list = list.filter((p) =>
+      p.name.toLowerCase().includes(q) ||
+      (p.processor ?? "").toLowerCase().includes(q) ||
+      (p.description ?? "").toLowerCase().includes(q)
+    );
+    return list;
+  }, [products, search.category, search.q]);
 
   const setCat = (c: "all" | "laptop" | "accessory") =>
-    navigate({ search: { category: c } });
+    navigate({ search: (prev) => ({ ...prev, category: c }) });
+
+  const submitSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    navigate({ search: (prev) => ({ ...prev, q: query.trim() || undefined }) });
+  };
 
   return (
     <SiteLayout>
@@ -49,15 +66,38 @@ function Shop() {
           <h1 className="text-4xl font-bold mb-2">Shop</h1>
           <p className="text-muted-foreground">All available laptops and accessories.</p>
         </div>
-        <div className="flex gap-2 mb-8 flex-wrap">
-          {(["all", "laptop", "accessory"] as const).map((c) => (
-            <Button key={c} variant={search.category === c ? "default" : "outline"} size="sm" onClick={() => setCat(c)}>
-              {c === "all" ? "All" : c === "laptop" ? "Laptops" : "Accessories"}
-            </Button>
-          ))}
+        <div className="mb-6 flex flex-col sm:flex-row gap-3 sm:items-center">
+          <form onSubmit={submitSearch} className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search laptops, processors…"
+              className="pl-9"
+              maxLength={80}
+            />
+          </form>
+          <div className="flex gap-2 flex-wrap">
+            {(["all", "laptop", "accessory"] as const).map((c) => (
+              <Button key={c} variant={search.category === c ? "default" : "outline"} size="sm" onClick={() => setCat(c)}>
+                {c === "all" ? "All" : c === "laptop" ? "Laptops" : "Accessories"}
+              </Button>
+            ))}
+          </div>
         </div>
         {loading ? (
-          <p className="text-muted-foreground">Loading…</p>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="rounded-xl border border-border bg-card overflow-hidden">
+                <Skeleton className="aspect-[4/3] w-full" />
+                <div className="p-4 space-y-2">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-3 w-1/2" />
+                  <Skeleton className="h-8 w-full mt-2" />
+                </div>
+              </div>
+            ))}
+          </div>
         ) : filtered.length === 0 ? (
           <p className="text-muted-foreground py-16 text-center">No products in this category yet.</p>
         ) : (

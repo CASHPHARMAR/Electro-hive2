@@ -22,6 +22,7 @@ export function Footer() {
           <ul className="space-y-1 text-muted-foreground">
             <li><a href="/shop" className="hover:text-primary">Shop</a></li>
             <li><a href="/about" className="hover:text-primary">About</a></li>
+            <li><a href="/faq" className="hover:text-primary">FAQ</a></li>
             <li><a href="/contact" className="hover:text-primary">Contact</a></li>
           </ul>
         </div>

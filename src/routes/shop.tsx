@@ -64,18 +64,20 @@ function Shop() {
     return sorted;
   }, [products, search.category, search.q, search.price, search.sort]);
 
-  const setCat = (c: "all" | "laptop" | "accessory") =>
-    navigate({ search: (prev) => ({ ...prev, category: c }) });
+  type ShopSearch = z.infer<typeof searchSchema>;
 
-  const setPrice = (p: "all" | "lt3000" | "3000_6000" | "gt6000") =>
-    navigate({ search: (prev) => ({ ...prev, price: p }) });
+  const setCat = (c: ShopSearch["category"]) =>
+    navigate({ search: (prev: ShopSearch) => ({ ...prev, category: c }) });
 
-  const setSort = (s: "newest" | "price_asc" | "price_desc") =>
-    navigate({ search: (prev) => ({ ...prev, sort: s }) });
+  const setPrice = (p: ShopSearch["price"]) =>
+    navigate({ search: (prev: ShopSearch) => ({ ...prev, price: p }) });
+
+  const setSort = (s: ShopSearch["sort"]) =>
+    navigate({ search: (prev: ShopSearch) => ({ ...prev, sort: s }) });
 
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    navigate({ search: (prev) => ({ ...prev, q: query.trim() || undefined }) });
+    navigate({ search: (prev: ShopSearch) => ({ ...prev, q: query.trim() || undefined }) });
   };
 
   return (

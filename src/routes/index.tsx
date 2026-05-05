@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowRight, MessageCircle, ShieldCheck, Tag, Truck, Star, Laptop, Headphones } from "lucide-react";
+import { ArrowRight, MessageCircle, ShieldCheck, Tag, Truck, Star, Laptop, Headphones, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteLayout } from "@/components/SiteLayout";
 import { ProductCard } from "@/components/ProductCard";
@@ -130,6 +130,42 @@ function Home() {
           </div>
         </section>
       )}
+
+      {/* Testimonials */}
+      <section className="bg-secondary/40 py-16">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold mb-2">What Our Customers Say</h2>
+            <p className="text-muted-foreground">Real feedback from buyers across Ghana.</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              { name: "Kwame A.", city: "Accra", text: "Got my Dell laptop same day. Battery, screen, everything as described. Will definitely buy again." },
+              { name: "Ama B.", city: "Kumasi", text: "Honest pricing and fast WhatsApp replies. They walked me through specs until I picked the right one." },
+              { name: "Kojo M.", city: "Tema", text: "Bought a HP for school. Working perfectly 3 months in. Trustworthy seller, highly recommend." },
+            ].map((t) => (
+              <div key={t.name} className="rounded-2xl bg-card border border-border p-6 shadow-[var(--shadow-card)] flex flex-col">
+                <Quote className="h-6 w-6 text-primary mb-3" />
+                <p className="text-sm text-foreground/90 mb-4 flex-1">"{t.text}"</p>
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold">
+                    {t.name.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold">{t.name}</p>
+                    <p className="text-xs text-muted-foreground">{t.city}</p>
+                  </div>
+                  <div className="ml-auto flex text-primary">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star key={i} className="h-3 w-3 fill-current" />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* CTA */}
       <section className="container mx-auto px-4 py-16">

@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, MessageCircle, Cpu, MemoryStick, HardDrive, Sparkles } from "lucide-react";
+import { ArrowLeft, MessageCircle, Cpu, MemoryStick, HardDrive, Sparkles, X, ZoomIn } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
+import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -18,15 +19,29 @@ function ProductPage() {
   const [product, setProduct] = useState<Tables<"products"> | null>(null);
   const [active, setActive] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [zoom, setZoom] = useState(false);
+  const [related, setRelated] = useState<Tables<"products">[]>([]);
 
   useEffect(() => {
+    setLoading(true);
+    setActive(0);
     supabase.from("products").select("*").eq("id", id).maybeSingle()
       .then(({ data }) => { setProduct(data); setLoading(false); });
   }, [id]);
 
   useEffect(() => {
     if (product?.name) document.title = `${product.name} — Electronic Hive`;
-  }, [product?.name]);
+    if (!product) return;
+    supabase.from("products").select("*").eq("category", product.category).eq("status", "available").neq("id", product.id).limit(4)
+      .then(({ data }) => setRelated(data ?? []));
+  }, [product]);
+
+  useEffect(() => {
+    if (!zoom) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setZoom(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [zoom]);
 
   if (loading) return (
     <SiteLayout>
@@ -59,15 +74,23 @@ function ProductPage() {
 
   return (
     <SiteLayout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 pb-28 md:pb-8">
         <Link to="/shop" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary mb-6">
           <ArrowLeft className="h-4 w-4" /> Back to shop
         </Link>
         <div className="grid md:grid-cols-2 gap-10">
           <div>
-            <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-muted border border-border">
-              <img src={images[active]} alt={product.name} className="h-full w-full object-cover" />
-            </div>
+            <button
+              type="button"
+              onClick={() => setZoom(true)}
+              aria-label="Zoom image"
+              className="group relative block aspect-[4/3] w-full overflow-hidden rounded-2xl bg-muted border border-border"
+            >
+              <img src={images[active]} alt={product.name} className="h-full w-full object-cover transition-transform group-hover:scale-105" />
+              <span className="absolute bottom-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-background/80 backdrop-blur opacity-0 group-hover:opacity-100 transition-opacity">
+                <ZoomIn className="h-4 w-4" />
+              </span>
+            </button>
             {images.length > 1 && (
               <div className="flex gap-2 mt-3 overflow-x-auto">
                 {images.map((src, i) => (
@@ -107,7 +130,7 @@ function ProductPage() {
               </div>
             )}
 
-            <Button asChild size="lg" className="w-full" disabled={sold}>
+            <Button asChild size="lg" className="hidden md:flex w-full" disabled={sold}>
               <a href={whatsappLink(product.name)} target="_blank" rel="noopener">
                 <MessageCircle className="h-4 w-4 mr-1" />
                 {sold ? "Sold Out" : "Order on WhatsApp"}
@@ -115,7 +138,48 @@ function ProductPage() {
             </Button>
           </div>
         </div>
+
+        {related.length > 0 && (
+          <section className="mt-16">
+            <h2 className="text-2xl font-bold mb-6">You may also like</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+              {related.map((p) => <ProductCard key={p.id} product={p} />)}
+            </div>
+          </section>
+        )}
       </div>
+
+      {/* Sticky mobile WhatsApp CTA */}
+      <div className="md:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border bg-background/95 backdrop-blur p-3 flex items-center gap-3">
+        <div className="flex-1 min-w-0">
+          <p className="text-xs text-muted-foreground truncate">{product.name}</p>
+          <p className="text-base font-bold text-primary">{formatGHS(product.price)}</p>
+        </div>
+        <Button asChild size="sm" disabled={sold} className="bg-success text-success-foreground hover:bg-success/90">
+          <a href={whatsappLink(product.name)} target="_blank" rel="noopener">
+            <MessageCircle className="h-4 w-4 mr-1" />
+            {sold ? "Sold" : "Order"}
+          </a>
+        </Button>
+      </div>
+
+      {/* Lightbox */}
+      {zoom && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+          onClick={() => setZoom(false)}
+        >
+          <button
+            type="button"
+            onClick={() => setZoom(false)}
+            aria-label="Close"
+            className="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+          >
+            <X className="h-5 w-5" />
+          </button>
+          <img src={images[active]} alt={product.name} className="max-h-full max-w-full object-contain" onClick={(e) => e.stopPropagation()} />
+        </div>
+      )}
     </SiteLayout>
   );
 }

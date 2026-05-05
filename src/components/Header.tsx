@@ -22,6 +22,7 @@ export function Header() {
           <Link to="/" activeProps={{ className: "text-primary" }} activeOptions={{ exact: true }} className="hover:text-primary transition-colors">Home</Link>
           <Link to="/shop" activeProps={{ className: "text-primary" }} className="hover:text-primary transition-colors">Shop</Link>
           <Link to="/about" activeProps={{ className: "text-primary" }} className="hover:text-primary transition-colors">About</Link>
+          <Link to="/faq" activeProps={{ className: "text-primary" }} className="hover:text-primary transition-colors">FAQ</Link>
           <Link to="/contact" activeProps={{ className: "text-primary" }} className="hover:text-primary transition-colors">Contact</Link>
         </nav>
         <div className="flex items-center gap-1">
@@ -39,6 +40,7 @@ export function Header() {
             <Link to="/" onClick={close} className="py-2 hover:text-primary">Home</Link>
             <Link to="/shop" onClick={close} className="py-2 hover:text-primary">Shop</Link>
             <Link to="/about" onClick={close} className="py-2 hover:text-primary">About</Link>
+            <Link to="/faq" onClick={close} className="py-2 hover:text-primary">FAQ</Link>
             <Link to="/contact" onClick={close} className="py-2 hover:text-primary">Contact</Link>
           </nav>
         </div>

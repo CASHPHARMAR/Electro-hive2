@@ -1,11 +1,10 @@
 import { MessageCircle } from "lucide-react";
-import { useLocation } from "@tanstack/react-router";
+import { useLocation } from "react-router-dom";
 import { whatsappLink } from "@/lib/whatsapp";
 
 export function FloatingWhatsApp() {
   const { pathname } = useLocation();
   const isProductPage = pathname.startsWith("/product/");
-
   return (
     <a
       href={whatsappLink()}

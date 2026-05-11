@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useRouter } from "@tanstack/react-router";
+import { useNavigate } from "react-router-dom";
 import { Upload, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,7 @@ const empty: FormState = {
 };
 
 export function ProductForm({ productId }: { productId?: string }) {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [form, setForm] = useState<FormState>(empty);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -76,7 +76,7 @@ export function ProductForm({ productId }: { productId?: string }) {
     setSaving(false);
     if (error) { toast.error(error.message); return; }
     toast.success(productId ? "Updated" : "Published");
-    router.navigate({ to: "/admin/products" });
+    navigate("/calvin-admin/products");
   };
 
   return (

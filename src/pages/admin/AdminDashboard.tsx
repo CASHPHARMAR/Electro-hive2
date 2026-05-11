@@ -1,15 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Package, CheckCircle, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
-export const Route = createFileRoute("/admin/")({
-  component: Dashboard,
-});
-
-function Dashboard() {
+export default function AdminDashboard() {
   const [stats, setStats] = useState({ total: 0, available: 0, sold: 0 });
-
   useEffect(() => {
     supabase.from("products").select("status").then(({ data }) => {
       const list = data ?? [];
@@ -20,13 +14,11 @@ function Dashboard() {
       });
     });
   }, []);
-
   const cards = [
     { label: "Total products", value: stats.total, icon: Package, color: "text-primary" },
     { label: "Available", value: stats.available, icon: CheckCircle, color: "text-success" },
     { label: "Sold", value: stats.sold, icon: XCircle, color: "text-destructive" },
   ];
-
   return (
     <div className="grid md:grid-cols-3 gap-4">
       {cards.map((c) => (

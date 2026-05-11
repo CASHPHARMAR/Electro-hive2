@@ -1,8 +1,16 @@
-import { Link } from "@tanstack/react-router";
+import { Link, NavLink } from "react-router-dom";
 import { useState } from "react";
 import { Moon, Sun, Laptop, Menu, X } from "lucide-react";
 import { useTheme } from "@/lib/theme";
 import { Button } from "@/components/ui/button";
+
+const NAV = [
+  { to: "/", label: "Home", end: true },
+  { to: "/shop", label: "Shop" },
+  { to: "/about", label: "About" },
+  { to: "/faq", label: "FAQ" },
+  { to: "/contact", label: "Contact" },
+];
 
 export function Header() {
   const { theme, toggle } = useTheme();
@@ -19,11 +27,11 @@ export function Header() {
           <span>Electronic Hive</span>
         </Link>
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-          <Link to="/" activeProps={{ className: "text-primary" }} activeOptions={{ exact: true }} className="hover:text-primary transition-colors">Home</Link>
-          <Link to="/shop" activeProps={{ className: "text-primary" }} className="hover:text-primary transition-colors">Shop</Link>
-          <Link to="/about" activeProps={{ className: "text-primary" }} className="hover:text-primary transition-colors">About</Link>
-          <Link to="/faq" activeProps={{ className: "text-primary" }} className="hover:text-primary transition-colors">FAQ</Link>
-          <Link to="/contact" activeProps={{ className: "text-primary" }} className="hover:text-primary transition-colors">Contact</Link>
+          {NAV.map((n) => (
+            <NavLink key={n.to} to={n.to} end={n.end} className={({ isActive }) => `hover:text-primary transition-colors ${isActive ? "text-primary" : ""}`}>
+              {n.label}
+            </NavLink>
+          ))}
         </nav>
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="icon" onClick={toggle} aria-label="Toggle theme">
@@ -37,11 +45,9 @@ export function Header() {
       {open && (
         <div className="md:hidden border-t border-border bg-background">
           <nav className="container mx-auto px-4 py-3 flex flex-col gap-1 text-sm font-medium">
-            <Link to="/" onClick={close} className="py-2 hover:text-primary">Home</Link>
-            <Link to="/shop" onClick={close} className="py-2 hover:text-primary">Shop</Link>
-            <Link to="/about" onClick={close} className="py-2 hover:text-primary">About</Link>
-            <Link to="/faq" onClick={close} className="py-2 hover:text-primary">FAQ</Link>
-            <Link to="/contact" onClick={close} className="py-2 hover:text-primary">Contact</Link>
+            {NAV.map((n) => (
+              <Link key={n.to} to={n.to} onClick={close} className="py-2 hover:text-primary">{n.label}</Link>
+            ))}
           </nav>
         </div>
       )}

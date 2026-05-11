@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { ArrowRight, MessageCircle, ShieldCheck, Tag, Truck, Star, Laptop, Headphones, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,17 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import heroImage from "@/assets/hero-laptop.jpg";
 
-export const Route = createFileRoute("/")({
-  component: Home,
-  head: () => ({
-    meta: [
-      { title: "Electronic Hive — Affordable Laptops & Accessories in Ghana" },
-      { name: "description", content: "Tested laptops & accessories in Accra. Fair prices, fast delivery, WhatsApp ordering." },
-    ],
-  }),
-});
-
-function Home() {
+export default function Home() {
   const [featured, setFeatured] = useState<Tables<"products">[]>([]);
   const [recent, setRecent] = useState<Tables<"products">[]>([]);
 
@@ -32,7 +22,6 @@ function Home() {
 
   return (
     <SiteLayout>
-      {/* Hero */}
       <section className="relative overflow-hidden border-b border-border" style={{ background: "var(--gradient-subtle)" }}>
         <div className="container mx-auto px-4 py-16 md:py-24 grid md:grid-cols-2 gap-10 items-center">
           <div>
@@ -63,7 +52,6 @@ function Home() {
         </div>
       </section>
 
-      {/* Featured */}
       {featured.length > 0 && (
         <section className="container mx-auto px-4 py-16">
           <div className="flex items-end justify-between mb-8">
@@ -81,17 +69,16 @@ function Home() {
         </section>
       )}
 
-      {/* Categories */}
       <section className="container mx-auto px-4 py-12">
         <h2 className="text-3xl font-bold mb-8 text-center">Shop by Category</h2>
         <div className="grid sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
-          <Link to="/shop" search={{ category: "laptop" }} className="group relative overflow-hidden rounded-2xl border border-border p-8 bg-card hover:shadow-[var(--shadow-elegant)] transition-all">
+          <Link to="/shop?category=laptop" className="group relative overflow-hidden rounded-2xl border border-border p-8 bg-card hover:shadow-[var(--shadow-elegant)] transition-all">
             <Laptop className="h-10 w-10 text-primary mb-3" />
             <h3 className="text-xl font-bold">Laptops</h3>
             <p className="text-sm text-muted-foreground">Reliable laptops for work, school & gaming.</p>
             <ArrowRight className="absolute top-6 right-6 h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
           </Link>
-          <Link to="/shop" search={{ category: "accessory" }} className="group relative overflow-hidden rounded-2xl border border-border p-8 bg-card hover:shadow-[var(--shadow-elegant)] transition-all">
+          <Link to="/shop?category=accessory" className="group relative overflow-hidden rounded-2xl border border-border p-8 bg-card hover:shadow-[var(--shadow-elegant)] transition-all">
             <Headphones className="h-10 w-10 text-primary mb-3" />
             <h3 className="text-xl font-bold">Accessories</h3>
             <p className="text-sm text-muted-foreground">Chargers, mice, headphones & more.</p>
@@ -100,7 +87,6 @@ function Home() {
         </div>
       </section>
 
-      {/* Why us */}
       <section className="bg-secondary/40 py-16 mt-8">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold mb-10 text-center">Why Choose Us</h2>
@@ -121,7 +107,6 @@ function Home() {
         </div>
       </section>
 
-      {/* Recently Added */}
       {recent.length > 0 && (
         <section className="container mx-auto px-4 py-16">
           <h2 className="text-3xl font-bold mb-8">Recently Added</h2>
@@ -131,7 +116,6 @@ function Home() {
         </section>
       )}
 
-      {/* Testimonials */}
       <section className="bg-secondary/40 py-16">
         <div className="container mx-auto px-4">
           <div className="text-center mb-10">
@@ -148,17 +132,13 @@ function Home() {
                 <Quote className="h-6 w-6 text-primary mb-3" />
                 <p className="text-sm text-foreground/90 mb-4 flex-1">"{t.text}"</p>
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold">
-                    {t.name.charAt(0)}
-                  </div>
+                  <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold">{t.name.charAt(0)}</div>
                   <div>
                     <p className="text-sm font-semibold">{t.name}</p>
                     <p className="text-xs text-muted-foreground">{t.city}</p>
                   </div>
                   <div className="ml-auto flex text-primary">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} className="h-3 w-3 fill-current" />
-                    ))}
+                    {Array.from({ length: 5 }).map((_, i) => (<Star key={i} className="h-3 w-3 fill-current" />))}
                   </div>
                 </div>
               </div>
@@ -167,7 +147,6 @@ function Home() {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="container mx-auto px-4 py-16">
         <div className="rounded-3xl p-10 md:p-16 text-center text-primary-foreground shadow-[var(--shadow-elegant)]" style={{ background: "var(--gradient-hero)" }}>
           <h2 className="text-3xl md:text-4xl font-bold mb-3">Ready to get your laptop?</h2>

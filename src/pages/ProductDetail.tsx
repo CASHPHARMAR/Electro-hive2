@@ -3,6 +3,8 @@ import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, MessageCircle, Cpu, MemoryStick, HardDrive, Sparkles, X, ZoomIn, ChevronLeft, ChevronRight } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { ProductCard } from "@/components/ProductCard";
+import { Seo } from "@/components/Seo";
+import { ShareButtons } from "@/components/ShareButtons";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -93,6 +95,29 @@ export default function ProductDetail() {
 
   return (
     <SiteLayout>
+      <Seo
+        title={product.name}
+        description={product.description?.slice(0, 155) || `${product.name} available at Electronic Hive Ghana — ${formatGHS(product.price)}.`}
+        image={product.images?.[0]}
+        type="product"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: product.name,
+          description: product.description ?? undefined,
+          image: product.images ?? undefined,
+          category: product.category,
+          brand: { "@type": "Brand", name: "Electronic Hive" },
+          offers: {
+            "@type": "Offer",
+            price: Number(product.price),
+            priceCurrency: "GHS",
+            availability: sold ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+            url: typeof window !== "undefined" ? window.location.href : "",
+            seller: { "@type": "Organization", name: "Electronic Hive" },
+          },
+        }}
+      />
       <div className="container mx-auto px-4 py-8 pb-28 md:pb-8">
         <Link to="/shop" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary mb-6">
           <ArrowLeft className="h-4 w-4" /> Back to shop
@@ -159,10 +184,13 @@ export default function ProductDetail() {
               </div>
             )}
             <Button asChild size="lg" className="hidden md:flex w-full" disabled={sold}>
-              <a href={whatsappLink(product.name)} target="_blank" rel="noopener">
+              <a href={whatsappLink(product.name, { price: Number(product.price) })} target="_blank" rel="noopener">
                 <MessageCircle className="h-4 w-4 mr-1" />{sold ? "Sold Out" : "Order on WhatsApp"}
               </a>
             </Button>
+            <div className="mt-6">
+              <ShareButtons title={product.name} />
+            </div>
           </div>
         </div>
         {related.length > 0 && (
@@ -180,7 +208,7 @@ export default function ProductDetail() {
           <p className="text-base font-bold text-primary">{formatGHS(product.price)}</p>
         </div>
         <Button asChild size="sm" disabled={sold} className="bg-success text-success-foreground hover:bg-success/90">
-          <a href={whatsappLink(product.name)} target="_blank" rel="noopener"><MessageCircle className="h-4 w-4 mr-1" />{sold ? "Sold" : "Order"}</a>
+          <a href={whatsappLink(product.name, { price: Number(product.price) })} target="_blank" rel="noopener"><MessageCircle className="h-4 w-4 mr-1" />{sold ? "Sold" : "Order"}</a>
         </Button>
       </div>
       {zoom && (

@@ -202,7 +202,7 @@ export default function ProductDetail() {
           </section>
         )}
       </div>
-      <div className="md:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border bg-background/95 backdrop-blur p-3 flex items-center gap-3">
+      <div className="md:hidden fixed bottom-16 inset-x-0 z-40 border-t border-border bg-background/95 backdrop-blur p-3 flex items-center gap-3" style={{ marginBottom: "env(safe-area-inset-bottom)" }}>
         <div className="flex-1 min-w-0">
           <p className="text-xs text-muted-foreground truncate">{product.name}</p>
           <p className="text-base font-bold text-primary">{formatGHS(product.price)}</p>

@@ -4,6 +4,7 @@ import { ArrowRight, MessageCircle, ShieldCheck, Tag, Truck, Star, Laptop, Headp
 import { Button } from "@/components/ui/button";
 import { SiteLayout } from "@/components/SiteLayout";
 import { ProductCard } from "@/components/ProductCard";
+import { Seo } from "@/components/Seo";
 import { whatsappLink } from "@/lib/whatsapp";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -22,6 +23,19 @@ export default function Home() {
 
   return (
     <SiteLayout>
+      <Seo
+        title="Electronic Hive — Affordable Laptops & Accessories in Ghana"
+        description="Tested laptops & accessories in Accra, Ghana. Fair prices, same-day delivery, WhatsApp ordering."
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "Store",
+          name: "Electronic Hive",
+          description: "Affordable laptops & accessories in Ghana — tested, trusted, fast delivery.",
+          address: { "@type": "PostalAddress", addressLocality: "Accra", addressCountry: "GH" },
+          telephone: "+233500847851",
+          url: typeof window !== "undefined" ? window.location.origin : "",
+        }}
+      />
       <section className="relative overflow-hidden border-b border-border" style={{ background: "var(--gradient-subtle)" }}>
         <div className="container mx-auto px-4 py-16 md:py-24 grid md:grid-cols-2 gap-10 items-center">
           <div>

@@ -1,11 +1,13 @@
 import { MessageCircle, Phone, MapPin, Clock } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
+import { Seo } from "@/components/Seo";
 import { whatsappLink, PHONE_DISPLAY } from "@/lib/whatsapp";
 
 export default function Contact() {
   return (
     <SiteLayout>
+      <Seo title="Contact Us" description="Reach Electronic Hive on WhatsApp or phone. Based in Accra, Ghana — we reply within minutes." />
       <section className="container mx-auto px-4 py-16 max-w-2xl">
         <h1 className="text-4xl font-bold mb-3">Get in Touch</h1>
         <p className="text-muted-foreground mb-10">We reply within minutes. Reach out via WhatsApp for fastest response.</p>

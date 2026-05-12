@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { Search } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { ProductCard } from "@/components/ProductCard";
+import { Seo } from "@/components/Seo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -75,6 +76,10 @@ export default function Shop() {
 
   return (
     <SiteLayout>
+      <Seo
+        title="Shop Laptops & Accessories"
+        description="Browse all available laptops and accessories at Electronic Hive Ghana. Filter by price, category, and order on WhatsApp."
+      />
       <section className="container mx-auto px-4 py-10">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">Shop</h1>

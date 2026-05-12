@@ -3,6 +3,7 @@ import { MessageCircle } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import { Seo } from "@/components/Seo";
 import { whatsappLink } from "@/lib/whatsapp";
 
 const faqs = [
@@ -19,6 +20,19 @@ const faqs = [
 export default function Faq() {
   return (
     <SiteLayout>
+      <Seo
+        title="FAQ — Frequently Asked Questions"
+        description="Payment, delivery, warranty and returns answered. Everything you need to know before ordering from Electronic Hive."
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: faqs.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: { "@type": "Answer", text: f.a },
+          })),
+        }}
+      />
       <section className="container mx-auto px-4 py-12 max-w-3xl">
         <h1 className="text-4xl font-bold mb-3">Frequently Asked Questions</h1>
         <p className="text-muted-foreground mb-8">Everything you need to know before ordering.</p>

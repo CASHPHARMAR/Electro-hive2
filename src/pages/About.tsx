@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ShieldCheck, Truck, Tag, Star, MessageCircle, MapPin } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
+import { Seo } from "@/components/Seo";
 import { whatsappLink } from "@/lib/whatsapp";
 
 export default function About() {
@@ -13,6 +14,7 @@ export default function About() {
   ];
   return (
     <SiteLayout>
+      <Seo title="About Us" description="Electronic Hive is a Ghana-based seller of tested, reliable laptops and accessories with same-day Accra delivery." />
       <section className="container mx-auto px-4 py-16 max-w-3xl">
         <h1 className="text-4xl md:text-5xl font-bold mb-4">About Electronic Hive</h1>
         <p className="text-lg text-muted-foreground mb-8">

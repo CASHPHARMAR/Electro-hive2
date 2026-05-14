@@ -1,5 +1,5 @@
 export const WHATSAPP_NUMBER = "233500847851";
-export const PHONE_DISPLAY = "0500847851";
+export const PHONE_DISPLAY = "0538239083";
 
 export function whatsappLink(productName?: string, options?: { url?: string; price?: number }) {
   if (productName) {

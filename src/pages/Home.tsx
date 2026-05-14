@@ -32,7 +32,7 @@ export default function Home() {
           name: "Electronic Hive",
           description: "Affordable laptops & accessories in Ghana — tested, trusted, fast delivery.",
           address: { "@type": "PostalAddress", addressLocality: "Accra", addressCountry: "GH" },
-          telephone: "+233500847851",
+          telephone: "+233538239083",
           url: typeof window !== "undefined" ? window.location.origin : "",
         }}
       />

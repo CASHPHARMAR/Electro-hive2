@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "homepage": "https://calvinselassie1.github.io/electronic-hive",
+  "homepage": "https://CASHPHARMAR.github.io/electronic-hive",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

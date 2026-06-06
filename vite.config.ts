@@ -4,8 +4,10 @@ import tailwindcss from "@tailwindcss/vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import path from "path";
 
-export default defineConfig(({ command }) => ({
-  base: command === "build" ? "/electronic-hive/" : "/",
+// Set VITE_BASE_PATH="/electronic-hive/" when deploying to GitHub Pages.
+// Leave unset (defaults to "/") for Netlify, Vercel, custom domains, and local dev.
+export default defineConfig(() => ({
+  base: process.env.VITE_BASE_PATH || "/",
   plugins: [react(), tailwindcss(), tsconfigPaths()],
   resolve: { alias: { "@": path.resolve(__dirname, "./src") } },
   server: {

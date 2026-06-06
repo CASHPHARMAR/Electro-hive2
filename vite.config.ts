@@ -9,6 +9,10 @@ import path from "path";
 export default defineConfig(() => ({
   base: process.env.VITE_BASE_PATH || "/",
   plugins: [react(), tailwindcss(), tsconfigPaths()],
+  build: {
+    outDir: "dist/client",
+    emptyOutDir: true,
+  },
   resolve: { alias: { "@": path.resolve(__dirname, "./src") } },
   server: {
     host: "0.0.0.0",

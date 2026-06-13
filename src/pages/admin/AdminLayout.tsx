@@ -48,7 +48,7 @@ export default function AdminLayout() {
     e.preventDefault();
     if (!email) { toast.error("Enter your email"); return; }
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + import.meta.env.BASE_URL + "calvin-admin",
+      redirectTo: window.location.origin + "/reset-password",
     });
     if (error) toast.error(error.message);
     else toast.success("Password reset email sent. Check your inbox.");

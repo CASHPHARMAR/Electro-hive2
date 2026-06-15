@@ -10,18 +10,39 @@ import { toast } from "sonner";
 export default function ResetPassword() {
   const navigate = useNavigate();
   const [ready, setReady] = useState(false);
+  const [linkError, setLinkError] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    // Supabase parses the recovery token from the URL hash automatically.
+    const params = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+    const errorDescription = params.get("error_description") || hashParams.get("error_description");
+
+    if (errorDescription) {
+      setLinkError(errorDescription.replace(/\+/g, " "));
+      return;
+    }
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") setReady(true);
     });
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) setReady(true);
-    });
+
+    const code = params.get("code");
+    if (code) {
+      supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
+        if (error) setLinkError(error.message);
+        else setReady(true);
+      });
+    } else {
+      supabase.auth.getSession().then(({ data, error }) => {
+        if (error) setLinkError(error.message);
+        else if (data.session) setReady(true);
+        else setLinkError("This reset link is invalid or expired. Please request a new one from the admin login page.");
+      });
+    }
+
     return () => subscription.unsubscribe();
   }, []);
 
@@ -44,6 +65,11 @@ export default function ResetPassword() {
         <p className="text-muted-foreground mb-6 text-sm">
           {ready ? "Enter your new password below." : "Validating reset link…"}
         </p>
+        {linkError && (
+          <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive mb-6">
+            {linkError}
+          </div>
+        )}
         {ready && (
           <form onSubmit={onSubmit} className="space-y-4">
             <div>

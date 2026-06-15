@@ -30,7 +30,15 @@ export default function ResetPassword() {
     });
 
     const code = params.get("code");
-    if (code) {
+    const accessToken = hashParams.get("access_token");
+    const refreshToken = hashParams.get("refresh_token");
+
+    if (accessToken && refreshToken) {
+      supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken }).then(({ error }) => {
+        if (error) setLinkError(error.message);
+        else setReady(true);
+      });
+    } else if (code) {
       supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
         if (error) setLinkError(error.message);
         else setReady(true);

@@ -43,3 +43,9 @@ externalPort = 3001
 deploymentTarget = "static"
 build = ["npm", "run", "build"]
 publicDir = "dist"
+
+[userenv]
+
+[userenv.shared]
+ADMIN_EMAIL = "theophiiusakomanyi54@gmail.com"
+ADMIN_PASSWORD_HASH = "$2b$12$rvj.Hct/GFWfkVx1xQD64uluybDDH9bQqkJSkV9YKg817MqhGQgUe"

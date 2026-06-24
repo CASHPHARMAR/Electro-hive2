@@ -1,6 +1,6 @@
 import type { Express, Request, Response } from "express";
 import { storage } from "./storage.js";
-import { isAuthenticated } from "./replit_integrations/auth/index.js";
+import { isAdminAuthenticated } from "./adminAuth.js";
 import { ObjectStorageService } from "./replit_integrations/object_storage/index.js";
 import multer from "multer";
 
@@ -60,7 +60,7 @@ export function registerRoutes(app: Express) {
 
   // ─── Admin product routes (protected) ────────────────────────────────────
 
-  app.get("/api/admin/products", isAuthenticated, async (_req, res) => {
+  app.get("/api/admin/products", isAdminAuthenticated, async (_req, res) => {
     try {
       const data = await storage.getProducts();
       res.json(data);
@@ -69,7 +69,7 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  app.get("/api/admin/stats", isAuthenticated, async (_req, res) => {
+  app.get("/api/admin/stats", isAdminAuthenticated, async (_req, res) => {
     try {
       const stats = await storage.getProductStats();
       res.json(stats);
@@ -78,7 +78,7 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  app.post("/api/admin/products", isAuthenticated, async (req, res) => {
+  app.post("/api/admin/products", isAdminAuthenticated, async (req, res) => {
     try {
       const product = await storage.createProduct(req.body);
       res.status(201).json(product);
@@ -87,7 +87,7 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  app.patch("/api/admin/products/:id", isAuthenticated, async (req, res) => {
+  app.patch("/api/admin/products/:id", isAdminAuthenticated, async (req, res) => {
     try {
       const product = await storage.updateProduct(req.params.id, req.body);
       res.json(product);
@@ -97,7 +97,7 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  app.delete("/api/admin/products/:id", isAuthenticated, async (req, res) => {
+  app.delete("/api/admin/products/:id", isAdminAuthenticated, async (req, res) => {
     try {
       await storage.deleteProduct(req.params.id);
       res.json({ success: true });
@@ -106,15 +106,11 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // ─── Image upload (admin only, stores via Object Storage) ────────────────
+  // ─── Image upload (admin only) ────────────────────────────────────────────
 
-  app.post("/api/admin/upload", isAuthenticated, upload.single("file"), async (req, res) => {
+  app.post("/api/admin/upload", isAdminAuthenticated, upload.single("file"), async (req, res) => {
     try {
       if (!req.file) return res.status(400).json({ message: "No file provided" });
-
-      const { bucket } = await import("@google-cloud/storage").then(
-        () => ({ bucket: objectStorage })
-      );
 
       const uploadUrl = await objectStorage.getObjectEntityUploadURL();
       const response = await fetch(uploadUrl, {

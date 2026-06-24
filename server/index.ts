@@ -1,7 +1,8 @@
 import express from "express";
 import { createServer } from "http";
-import { setupAuth, registerAuthRoutes } from "./replit_integrations/auth/index.js";
+import { setupAuth } from "./replit_integrations/auth/index.js";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage/index.js";
+import { registerAdminAuthRoutes } from "./adminAuth.js";
 import { registerRoutes } from "./routes.js";
 
 const app = express();
@@ -10,7 +11,7 @@ app.use(express.urlencoded({ extended: false }));
 
 async function main() {
   await setupAuth(app);
-  registerAuthRoutes(app);
+  registerAdminAuthRoutes(app);
   registerObjectStorageRoutes(app);
   registerRoutes(app);
 

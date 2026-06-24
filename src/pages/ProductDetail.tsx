@@ -9,17 +9,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import useEmblaCarousel from "embla-carousel-react";
-import { supabase } from "@/integrations/supabase/client";
+import { api, type Product } from "@/lib/api";
 import { formatGHS, whatsappLink } from "@/lib/whatsapp";
-import type { Tables } from "@/integrations/supabase/types";
 
 export default function ProductDetail() {
   const { id = "" } = useParams<{ id: string }>();
-  const [product, setProduct] = useState<Tables<"products"> | null>(null);
+  const [product, setProduct] = useState<Product | null>(null);
   const [active, setActive] = useState(0);
   const [loading, setLoading] = useState(true);
   const [zoom, setZoom] = useState(false);
-  const [related, setRelated] = useState<Tables<"products">[]>([]);
+  const [related, setRelated] = useState<Product[]>([]);
   const [mainEmbla, mainApi] = useEmblaCarousel({ loop: false, align: "start" });
   const [zoomEmbla, zoomApi] = useEmblaCarousel({ loop: true, align: "center" });
 
@@ -41,15 +40,13 @@ export default function ProductDetail() {
 
   useEffect(() => {
     setLoading(true); setActive(0);
-    supabase.from("products").select("*").eq("id", id).maybeSingle()
-      .then(({ data }) => { setProduct(data); setLoading(false); });
+    api.getProduct(id).then((data) => { setProduct(data); setLoading(false); }).catch(() => { setProduct(null); setLoading(false); });
   }, [id]);
 
   useEffect(() => {
     if (product?.name) document.title = `${product.name} — Electronic Hive`;
     if (!product) return;
-    supabase.from("products").select("*").eq("category", product.category).eq("status", "available").neq("id", product.id).limit(4)
-      .then(({ data }) => setRelated(data ?? []));
+    api.getRelated(product.id).then(setRelated).catch(() => {});
   }, [product]);
 
   useEffect(() => {
@@ -97,7 +94,7 @@ export default function ProductDetail() {
     <SiteLayout>
       <Seo
         title={product.name}
-        description={product.description?.slice(0, 155) || `${product.name} available at Electronic Hive Ghana — ${formatGHS(product.price)}.`}
+        description={product.description?.slice(0, 155) || `${product.name} available at Electronic Hive Ghana — ${formatGHS(Number(product.price))}.`}
         image={product.images?.[0]}
         type="product"
         jsonLd={{
@@ -166,7 +163,7 @@ export default function ProductDetail() {
               {product.featured && <Badge className="bg-primary">Featured</Badge>}
             </div>
             <h1 className="text-3xl font-bold mb-3">{product.name}</h1>
-            <p className="text-3xl font-bold text-primary mb-6">{formatGHS(product.price)}</p>
+            <p className="text-3xl font-bold text-primary mb-6">{formatGHS(Number(product.price))}</p>
             {specs.length > 0 && (
               <div className="grid grid-cols-2 gap-3 mb-6">
                 {specs.map((s) => (
@@ -205,7 +202,7 @@ export default function ProductDetail() {
       <div className="md:hidden fixed bottom-16 inset-x-0 z-40 border-t border-border bg-background/95 backdrop-blur p-3 flex items-center gap-3" style={{ marginBottom: "env(safe-area-inset-bottom)" }}>
         <div className="flex-1 min-w-0">
           <p className="text-xs text-muted-foreground truncate">{product.name}</p>
-          <p className="text-base font-bold text-primary">{formatGHS(product.price)}</p>
+          <p className="text-base font-bold text-primary">{formatGHS(Number(product.price))}</p>
         </div>
         <Button asChild size="sm" disabled={sold} className="bg-success text-success-foreground hover:bg-success/90">
           <a href={whatsappLink(product.name, { price: Number(product.price) })} target="_blank" rel="noopener"><MessageCircle className="h-4 w-4 mr-1" />{sold ? "Sold" : "Order"}</a>

@@ -1,29 +1,37 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Pencil, Trash2, CheckCheck, RotateCcw } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { api, type Product } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { formatGHS } from "@/lib/whatsapp";
-import type { Tables } from "@/integrations/supabase/types";
 
 export default function AdminProducts() {
-  const [products, setProducts] = useState<Tables<"products">[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const load = () => {
-    supabase.from("products").select("*").order("created_at", { ascending: false })
-      .then(({ data }) => setProducts(data ?? []));
+    api.admin.getProducts().then(setProducts).catch(console.error);
   };
   useEffect(load, []);
   const remove = async (id: string) => {
     if (!confirm("Delete this product?")) return;
-    const { error } = await supabase.from("products").delete().eq("id", id);
-    if (error) toast.error(error.message); else { toast.success("Deleted"); load(); }
+    try {
+      await api.admin.deleteProduct(id);
+      toast.success("Deleted");
+      load();
+    } catch (e: any) {
+      toast.error(e.message);
+    }
   };
   const toggleStatus = async (id: string, current: string) => {
     const next = current === "sold" ? "available" : "sold";
-    const { error } = await supabase.from("products").update({ status: next }).eq("id", id);
-    if (error) toast.error(error.message); else { toast.success(`Marked as ${next}`); load(); }
+    try {
+      await api.admin.updateProduct(id, { status: next });
+      toast.success(`Marked as ${next}`);
+      load();
+    } catch (e: any) {
+      toast.error(e.message);
+    }
   };
   return (
     <div className="rounded-xl border border-border overflow-hidden bg-card">
@@ -42,7 +50,7 @@ export default function AdminProducts() {
             {products.map((p) => (
               <tr key={p.id} className="border-t border-border">
                 <td className="p-3 font-medium">{p.name}</td>
-                <td className="p-3">{formatGHS(p.price)}</td>
+                <td className="p-3">{formatGHS(Number(p.price))}</td>
                 <td className="p-3 capitalize">{p.category}</td>
                 <td className="p-3"><Badge variant={p.status === "sold" ? "destructive" : "default"}>{p.status}</Badge></td>
                 <td className="p-3 text-right space-x-1 whitespace-nowrap">

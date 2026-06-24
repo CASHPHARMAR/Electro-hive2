@@ -1,18 +1,11 @@
 import { useEffect, useState } from "react";
 import { Package, CheckCircle, XCircle } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({ total: 0, available: 0, sold: 0 });
   useEffect(() => {
-    supabase.from("products").select("status").then(({ data }) => {
-      const list = data ?? [];
-      setStats({
-        total: list.length,
-        available: list.filter((p) => p.status === "available").length,
-        sold: list.filter((p) => p.status === "sold").length,
-      });
-    });
+    api.admin.getStats().then(setStats).catch(console.error);
   }, []);
   const cards = [
     { label: "Total products", value: stats.total, icon: Package, color: "text-primary" },

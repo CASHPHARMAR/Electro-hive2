@@ -6,19 +6,16 @@ import { SiteLayout } from "@/components/SiteLayout";
 import { ProductCard } from "@/components/ProductCard";
 import { Seo } from "@/components/Seo";
 import { whatsappLink } from "@/lib/whatsapp";
-import { supabase } from "@/integrations/supabase/client";
-import type { Tables } from "@/integrations/supabase/types";
+import { api, type Product } from "@/lib/api";
 import heroImage from "@/assets/hero-laptop.jpg";
 
 export default function Home() {
-  const [featured, setFeatured] = useState<Tables<"products">[]>([]);
-  const [recent, setRecent] = useState<Tables<"products">[]>([]);
+  const [featured, setFeatured] = useState<Product[]>([]);
+  const [recent, setRecent] = useState<Product[]>([]);
 
   useEffect(() => {
-    supabase.from("products").select("*").eq("featured", true).eq("status", "available").limit(8)
-      .then(({ data }) => setFeatured(data ?? []));
-    supabase.from("products").select("*").order("created_at", { ascending: false }).limit(4)
-      .then(({ data }) => setRecent(data ?? []));
+    api.getFeatured().then(setFeatured).catch(console.error);
+    api.getRecent().then(setRecent).catch(console.error);
   }, []);
 
   return (

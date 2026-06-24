@@ -7,8 +7,7 @@ import { Seo } from "@/components/Seo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { supabase } from "@/integrations/supabase/client";
-import type { Tables } from "@/integrations/supabase/types";
+import { api, type Product } from "@/lib/api";
 
 type Cat = "all" | "laptop" | "accessory";
 type Sort = "newest" | "price_asc" | "price_desc";
@@ -25,7 +24,7 @@ export default function Shop() {
   const price = (PRICES.includes(searchParams.get("price") as PriceFilter) ? searchParams.get("price") : "all") as PriceFilter;
   const q = searchParams.get("q") ?? "";
 
-  const [products, setProducts] = useState<Tables<"products">[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState(q);
 
@@ -33,8 +32,7 @@ export default function Shop() {
 
   useEffect(() => {
     setLoading(true);
-    supabase.from("products").select("*").eq("status", "available").order("created_at", { ascending: false })
-      .then(({ data }) => { setProducts(data ?? []); setLoading(false); });
+    api.getProducts().then((data) => { setProducts(data); setLoading(false); }).catch(() => setLoading(false));
   }, []);
 
   const filtered = useMemo(() => {

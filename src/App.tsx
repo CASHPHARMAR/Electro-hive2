@@ -13,7 +13,6 @@ import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminProducts from "@/pages/admin/AdminProducts";
 import AdminNew from "@/pages/admin/AdminNew";
 import AdminEdit from "@/pages/admin/AdminEdit";
-import ResetPassword from "@/pages/admin/ResetPassword";
 
 export default function App() {
   return (
@@ -31,8 +30,7 @@ export default function App() {
           <Route path="new" element={<AdminNew />} />
           <Route path="edit/:id" element={<AdminEdit />} />
         </Route>
-        <Route path="/reset-password" element={<ResetPassword />} />
-        {/* Legacy redirect */}
+        <Route path="/reset-password" element={<Navigate to="/calvin-admin" replace />} />
         <Route path="/admin/*" element={<Navigate to="/calvin-admin" replace />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

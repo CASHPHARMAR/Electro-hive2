@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Upload, X } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,14 +32,14 @@ export function ProductForm({ productId }: { productId?: string }) {
 
   useEffect(() => {
     if (!productId) return;
-    supabase.from("products").select("*").eq("id", productId).maybeSingle().then(({ data }) => {
-      if (data) setForm({
+    api.getProduct(productId).then((data) => {
+      setForm({
         name: data.name, price: String(data.price), category: data.category,
         processor: data.processor ?? "", ram: data.ram ?? "", storage: data.storage ?? "",
         condition: data.condition ?? "used", description: data.description ?? "",
         status: data.status, featured: data.featured, images: data.images ?? [],
       });
-    });
+    }).catch(console.error);
   }, [productId]);
 
   const update = <K extends keyof FormState>(k: K, v: FormState[K]) => setForm((f) => ({ ...f, [k]: v }));
@@ -49,11 +49,12 @@ export function ProductForm({ productId }: { productId?: string }) {
     setUploading(true);
     const uploaded: string[] = [];
     for (const file of Array.from(files)) {
-      const path = `${crypto.randomUUID()}-${file.name}`;
-      const { error } = await supabase.storage.from("products").upload(path, file);
-      if (error) { toast.error(error.message); continue; }
-      const { data } = supabase.storage.from("products").getPublicUrl(path);
-      uploaded.push(data.publicUrl);
+      try {
+        const url = await api.admin.uploadImage(file);
+        uploaded.push(url);
+      } catch (e: any) {
+        toast.error(e.message || "Upload failed");
+      }
     }
     update("images", [...form.images, ...uploaded]);
     setUploading(false);
@@ -70,13 +71,19 @@ export function ProductForm({ productId }: { productId?: string }) {
       condition: form.condition, description: form.description || null,
       status: form.status, featured: form.featured, images: form.images,
     };
-    const { error } = productId
-      ? await supabase.from("products").update(payload).eq("id", productId)
-      : await supabase.from("products").insert(payload);
-    setSaving(false);
-    if (error) { toast.error(error.message); return; }
-    toast.success(productId ? "Updated" : "Published");
-    navigate("/calvin-admin/products");
+    try {
+      if (productId) {
+        await api.admin.updateProduct(productId, payload);
+      } else {
+        await api.admin.createProduct(payload);
+      }
+      toast.success(productId ? "Updated" : "Published");
+      navigate("/calvin-admin/products");
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (

@@ -1,0 +1,2 @@
+- [Express 5 wildcard routes](express5-routes.md) — Express 5 changed wildcard syntax; use `{*param}` not `/*` or `/:param(*)`
+- [ESM server imports need .js extension](esm-imports.md) — tsx/ESM server requires `.js` extensions on all local imports even for `.ts` files

@@ -3,9 +3,7 @@ import { MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatGHS, whatsappLink } from "@/lib/whatsapp";
-import type { Tables } from "@/integrations/supabase/types";
-
-type Product = Tables<"products">;
+import type { Product } from "@/lib/api";
 
 export function ProductCard({ product }: { product: Product }) {
   const sold = product.status === "sold";
@@ -25,7 +23,7 @@ export function ProductCard({ product }: { product: Product }) {
           {[product.ram, product.storage].filter(Boolean).join(" • ") || product.category}
         </p>
         <div className="mt-auto flex items-center justify-between pt-2">
-          <span className="text-lg font-bold text-primary">{formatGHS(product.price)}</span>
+          <span className="text-lg font-bold text-primary">{formatGHS(Number(product.price))}</span>
         </div>
         <Button asChild size="sm" disabled={sold} className="w-full">
           <a href={whatsappLink(product.name)} target="_blank" rel="noopener">

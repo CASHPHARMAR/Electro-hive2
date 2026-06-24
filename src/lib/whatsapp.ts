@@ -1,6 +1,6 @@
 export const WHATSAPP_NUMBER = "233547944448";
 export const PHONE_DISPLAY = "0547944448";
-export const CONTACT_EMAIL = "theophiusakomanyi54@gmail.com";
+export const CONTACT_EMAIL = "theophiiusakomanyi54@gmail.com";
 
 export function whatsappLink(productName?: string, options?: { url?: string; price?: number }) {
   if (productName) {

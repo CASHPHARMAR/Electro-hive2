@@ -1,6 +1,7 @@
 [build]
-  command = "npm ci && npm run build"
+  command = "npm ci && npx -y vite@7.3.1 build"
   publish = "dist"
+  functions = "netlify/functions"
 
 [[redirects]]
   from = "/*"

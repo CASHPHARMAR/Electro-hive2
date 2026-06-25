@@ -2,7 +2,30 @@ import type { Express, Request, Response } from "express";
 import { storage } from "./storage.js";
 import { isAdminAuthenticated } from "./adminAuth.js";
 
+const cors = {
+  "Access-Control-Allow-Credentials": "true",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET,OPTIONS,PATCH,DELETE,POST,PUT",
+  "Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization",
+};
+
+function setCors(res: Response) {
+  for (const [k, v] of Object.entries(cors)) {
+    res.setHeader(k, v);
+  }
+}
+
 export function registerRoutes(app: Express) {
+  // CORS preflight
+  app.use("/api", (req, res, next) => {
+    setCors(res);
+    if (req.method === "OPTIONS") {
+      res.status(204).end();
+      return;
+    }
+    next();
+  });
+
   // ─── Public product routes ────────────────────────────────────────────────
 
   app.get("/api/products", async (_req, res) => {
@@ -101,7 +124,7 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // ─── Image upload (base64, works on Vercel) ───────────────────────────────
+  // ─── Image upload (base64, works on serverless) ───────────────────────
 
   app.post("/api/admin/upload", isAdminAuthenticated, async (req, res) => {
     try {
@@ -109,15 +132,9 @@ export function registerRoutes(app: Express) {
       if (!base64 || !name) {
         return res.status(400).json({ message: "base64 and name required" });
       }
-
-      const buffer = Buffer.from(base64, "base64");
       const ext = name.split(".").pop() || "jpg";
-      const id = crypto.randomUUID();
-      const key = `uploads/${id}.${ext}`;
-
-      // In Vercel, we use a data URL approach for images
       const dataUrl = `data:image/${ext === "png" ? "png" : "jpeg"};base64,${base64}`;
-      res.json({ url: dataUrl, key });
+      res.json({ url: dataUrl });
     } catch (e) {
       console.error("Upload error:", e);
       res.status(500).json({ message: "Failed to process image" });

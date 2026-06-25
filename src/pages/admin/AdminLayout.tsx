@@ -1,81 +1,93 @@
-import { useState } from "react";
-import { Outlet, Link } from "react-router-dom";
-import { LogOut, LayoutDashboard, Plus, Package, Mail, Lock, AlertCircle } from "lucide-react";
+import { Outlet, Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { LogOut, LayoutDashboard, Plus, Package } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
+const ADMIN_EMAILS = ["theophiusakomanyi54@gmail.com"];
 
 export default function AdminLayout() {
-  const { user, isLoading, isAuthenticated, login, logout } = useAuth();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [authed, setAuthed] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const [resetMode, setResetMode] = useState(false);
 
-  async function handleLogin(e: React.FormEvent) {
+  const checkAccess = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { setAuthed(false); setIsAdmin(false); setLoading(false); return; }
+    setAuthed(true);
+    // Check both: email whitelist AND admin role in DB
+    const userEmail = session.user.email?.toLowerCase() ?? "";
+    const inWhitelist = ADMIN_EMAILS.includes(userEmail);
+    const { data: roleRow } = await supabase.from("user_roles").select("role").eq("user_id", session.user.id).eq("role", "admin").maybeSingle();
+    setIsAdmin(inWhitelist || !!roleRow);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => { checkAccess(); });
+    checkAccess();
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const signIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setSubmitting(true);
-    const result = await login(email, password);
-    setSubmitting(false);
-    if (!result.ok) setError(result.error ?? "Invalid credentials");
-  }
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) toast.error(error.message);
+    else toast.success("Signed in");
+  };
 
-  if (isLoading) return <SiteLayout><div className="container p-12">Loading…</div></SiteLayout>;
+  const sendReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) { toast.error("Enter your email"); return; }
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + "/reset-password",
+    });
+    if (error) toast.error(error.message);
+    else toast.success("Password reset email sent. Check your inbox.");
+  };
 
-  if (!isAuthenticated) {
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
+  };
+
+  if (loading) return <SiteLayout><div className="container p-12">Loading…</div></SiteLayout>;
+
+  if (!authed) {
     return (
       <SiteLayout>
         <div className="container mx-auto px-4 py-16 max-w-md">
-          <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">
-            <h1 className="text-2xl font-bold mb-1 text-center">Admin Login</h1>
-            <p className="text-muted-foreground text-sm text-center mb-7">Sign in to manage products.</p>
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="email">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="email"
-                    type="email"
-                    className="pl-9"
-                    placeholder="admin@example.com"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    required
-                    autoComplete="email"
-                  />
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="password"
-                    type="password"
-                    className="pl-9"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    required
-                    autoComplete="current-password"
-                  />
-                </div>
-              </div>
-              {error && (
-                <div className="flex items-center gap-2 text-sm text-destructive rounded-lg bg-destructive/10 px-3 py-2">
-                  <AlertCircle className="h-4 w-4 shrink-0" />
-                  {error}
-                </div>
-              )}
-              <Button type="submit" className="w-full" disabled={submitting}>
-                {submitting ? "Signing in…" : "Sign In"}
-              </Button>
-            </form>
-          </div>
+          <h1 className="text-3xl font-bold mb-2">Admin Login</h1>
+          <p className="text-muted-foreground mb-6 text-sm">{resetMode ? "Reset your password." : "Sign in to manage products."}</p>
+          <form onSubmit={resetMode ? sendReset : signIn} className="space-y-4">
+            <div><Label>Email</Label><Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+            {!resetMode && (<div><Label>Password</Label><Input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} /></div>)}
+            <Button type="submit" className="w-full">{resetMode ? "Send Reset Email" : "Sign In"}</Button>
+            <Button type="button" variant="ghost" className="w-full" onClick={() => setResetMode((v) => !v)}>
+              {resetMode ? "Back to Sign In" : "Forgot password?"}
+            </Button>
+          </form>
+          <p className="mt-6 text-xs text-muted-foreground text-center">Admin access is restricted. Contact the site owner.</p>
+        </div>
+      </SiteLayout>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <SiteLayout>
+        <div className="container mx-auto px-4 py-16 max-w-md text-center">
+          <h1 className="text-2xl font-bold mb-2">Not authorized</h1>
+          <p className="text-muted-foreground mb-6">Your account does not have admin access.</p>
+          <Button onClick={signOut} variant="outline">Sign Out</Button>
         </div>
       </SiteLayout>
     );
@@ -90,7 +102,7 @@ export default function AdminLayout() {
             <Button asChild variant="ghost" size="sm"><Link to="/calvin-admin"><LayoutDashboard className="h-4 w-4 mr-1" /> Dashboard</Link></Button>
             <Button asChild variant="ghost" size="sm"><Link to="/calvin-admin/products"><Package className="h-4 w-4 mr-1" /> Products</Link></Button>
             <Button asChild variant="ghost" size="sm"><Link to="/calvin-admin/new"><Plus className="h-4 w-4 mr-1" /> Add Product</Link></Button>
-            <Button onClick={logout} variant="outline" size="sm"><LogOut className="h-4 w-4 mr-1" /> Sign Out</Button>
+            <Button onClick={signOut} variant="outline" size="sm"><LogOut className="h-4 w-4 mr-1" /> Sign Out</Button>
           </div>
         </div>
         <Outlet />

@@ -1,5 +1,5 @@
-import { Phone, MapPin, MessageCircle } from "lucide-react";
-import { whatsappLink, PHONE_DISPLAY } from "@/lib/whatsapp";
+import { Phone, MapPin, MessageCircle, Mail } from "lucide-react";
+import { whatsappLink, PHONE_DISPLAY, CONTACT_EMAIL } from "@/lib/whatsapp";
 
 export function Footer() {
   return (
@@ -13,6 +13,9 @@ export function Footer() {
           <h3 className="font-semibold mb-3">Contact</h3>
           <p className="flex items-center gap-2 text-muted-foreground"><Phone className="h-4 w-4" /> {PHONE_DISPLAY}</p>
           <p className="flex items-center gap-2 text-muted-foreground"><MapPin className="h-4 w-4" /> Accra, Ghana</p>
+          <p className="flex items-center gap-2 text-muted-foreground">
+            <Mail className="h-4 w-4" /> <a href={`mailto:${CONTACT_EMAIL}`} className="hover:underline">{CONTACT_EMAIL}</a>
+          </p>
           <a href={whatsappLink()} target="_blank" rel="noopener" className="flex items-center gap-2 text-primary hover:underline">
             <MessageCircle className="h-4 w-4" /> Chat on WhatsApp
           </a>

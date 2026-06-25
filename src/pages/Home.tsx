@@ -6,16 +6,19 @@ import { SiteLayout } from "@/components/SiteLayout";
 import { ProductCard } from "@/components/ProductCard";
 import { Seo } from "@/components/Seo";
 import { whatsappLink } from "@/lib/whatsapp";
-import { api, type Product } from "@/lib/api";
+import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 import heroImage from "@/assets/hero-laptop.jpg";
 
 export default function Home() {
-  const [featured, setFeatured] = useState<Product[]>([]);
-  const [recent, setRecent] = useState<Product[]>([]);
+  const [featured, setFeatured] = useState<Tables<"products">[]>([]);
+  const [recent, setRecent] = useState<Tables<"products">[]>([]);
 
   useEffect(() => {
-    api.getFeatured().then(setFeatured).catch(console.error);
-    api.getRecent().then(setRecent).catch(console.error);
+    supabase.from("products").select("*").eq("featured", true).eq("status", "available").limit(8)
+      .then(({ data }) => setFeatured(data ?? []));
+    supabase.from("products").select("*").order("created_at", { ascending: false }).limit(4)
+      .then(({ data }) => setRecent(data ?? []));
   }, []);
 
   return (
@@ -29,7 +32,7 @@ export default function Home() {
           name: "Electronic Hive",
           description: "Affordable laptops & accessories in Ghana — tested, trusted, fast delivery.",
           address: { "@type": "PostalAddress", addressLocality: "Accra", addressCountry: "GH" },
-          telephone: "+233538239083",
+          telephone: "+233547944448",
           url: typeof window !== "undefined" ? window.location.origin : "",
         }}
       />

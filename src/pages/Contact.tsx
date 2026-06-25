@@ -20,10 +20,12 @@ export default function Contact() {
             <span className="flex h-12 w-12 items-center justify-center rounded-full bg-accent text-accent-foreground"><Phone /></span>
             <div><p className="font-semibold">Phone</p><p className="text-sm text-muted-foreground">{PHONE_DISPLAY}</p></div>
           </div>
-          <a href={`mailto:${CONTACT_EMAIL}`} className="flex items-center gap-4 p-5 rounded-xl border border-border bg-card hover:shadow-[var(--shadow-elegant)] transition-all">
+
+          <div className="flex items-center gap-4 p-5 rounded-xl border border-border bg-card">
             <span className="flex h-12 w-12 items-center justify-center rounded-full bg-accent text-accent-foreground"><Mail /></span>
-            <div><p className="font-semibold">Email</p><p className="text-sm text-muted-foreground">{CONTACT_EMAIL}</p></div>
-          </a>
+            <div><p className="font-semibold">Email</p><p className="text-sm text-muted-foreground"><a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></p></div>
+          </div>
+
           <div className="flex items-center gap-4 p-5 rounded-xl border border-border bg-card">
             <span className="flex h-12 w-12 items-center justify-center rounded-full bg-accent text-accent-foreground"><MapPin /></span>
             <div><p className="font-semibold">Location</p><p className="text-sm text-muted-foreground">Accra, Ghana</p></div>

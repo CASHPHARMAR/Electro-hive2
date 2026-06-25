@@ -48,12 +48,21 @@ export const api = {
     deleteProduct: (id: string) =>
       apiFetch<{ success: boolean }>(`/api/admin/products/${id}`, { method: "DELETE" }),
     uploadImage: async (file: File): Promise<string> => {
-      const form = new FormData();
-      form.append("file", file);
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result as string;
+          const base64 = result.split(",")[1];
+          resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
       const res = await fetch("/api/admin/upload", {
         method: "POST",
         credentials: "include",
-        body: form,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ base64, name: file.name }),
       });
       if (!res.ok) throw new Error("Upload failed");
       const data = await res.json();

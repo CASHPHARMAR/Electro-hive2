@@ -5,10 +5,10 @@ import tsconfigPaths from "vite-tsconfig-paths";
 import path from "path";
 
 export default defineConfig(() => ({
-  base: "/",
   plugins: [react(), tailwindcss(), tsconfigPaths()],
   build: {
     emptyOutDir: true,
+    outDir: "dist",
   },
   resolve: { alias: { "@": path.resolve(__dirname, "./src") } },
   server: {

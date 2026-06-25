@@ -1,11 +1,6 @@
 import type { Express, Request, Response } from "express";
 import { storage } from "./storage.js";
 import { isAdminAuthenticated } from "./adminAuth.js";
-import { ObjectStorageService } from "./replit_integrations/object_storage/index.js";
-import multer from "multer";
-
-const objectStorage = new ObjectStorageService();
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
 
 export function registerRoutes(app: Express) {
   // ─── Public product routes ────────────────────────────────────────────────
@@ -106,27 +101,26 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // ─── Image upload (admin only) ────────────────────────────────────────────
+  // ─── Image upload (base64, works on Vercel) ───────────────────────────────
 
-  app.post("/api/admin/upload", isAdminAuthenticated, upload.single("file"), async (req, res) => {
+  app.post("/api/admin/upload", isAdminAuthenticated, async (req, res) => {
     try {
-      if (!req.file) return res.status(400).json({ message: "No file provided" });
+      const { base64, name } = req.body ?? {};
+      if (!base64 || !name) {
+        return res.status(400).json({ message: "base64 and name required" });
+      }
 
-      const uploadUrl = await objectStorage.getObjectEntityUploadURL();
-      const response = await fetch(uploadUrl, {
-        method: "PUT",
-        body: req.file.buffer,
-        headers: { "Content-Type": req.file.mimetype },
-      });
+      const buffer = Buffer.from(base64, "base64");
+      const ext = name.split(".").pop() || "jpg";
+      const id = crypto.randomUUID();
+      const key = `uploads/${id}.${ext}`;
 
-      if (!response.ok) throw new Error("Failed to store file");
-
-      const objectPath = objectStorage.normalizeObjectEntityPath(uploadUrl);
-      const publicUrl = `${req.protocol}://${req.hostname}${objectPath}`;
-      res.json({ url: publicUrl, objectPath });
+      // In Vercel, we use a data URL approach for images
+      const dataUrl = `data:image/${ext === "png" ? "png" : "jpeg"};base64,${base64}`;
+      res.json({ url: dataUrl, key });
     } catch (e) {
       console.error("Upload error:", e);
-      res.status(500).json({ message: "Failed to upload image" });
+      res.status(500).json({ message: "Failed to process image" });
     }
   });
 }
